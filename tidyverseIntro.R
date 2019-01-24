@@ -22,10 +22,12 @@ weather <- as_tibble(read.csv("./data/weather.csv", stringsAsFactors = FALSE))
 weather
 
 
-weather2 <- gather(weather, key = weirdDay, value = temp, d1:d31, na.rm = TRUE) # gather the 31 day columns into a new variable called "day"
+weather2 <- gather(weather, key = weirdDay, value = temp, d1:d31, na.rm = TRUE) # gather the 31 day columns into a new variable called "day" 
+# and drop missing values
 weather2
 
 
+# do some cleaning (we'll go over these dplyr functions further below) 
 weather3 <- weather2 %>% # start with weather2
   mutate(day = parse_number(weirdDay)) %>% # dplyr::mutate() creates a new variable called day using the calculation specified on the right side of "="
   select(id, year, month, day, element, temp) %>% # the intended purpose of select() is to retain only those variables you want to keep, but it can also be used to set the order of columns
@@ -43,7 +45,7 @@ weather4
 
 
 
-# Note these steps can all go into a single pipe:
+# Note we can collapse these steps into a single pipe:
 weather5 <- weather %>%
   gather(weirdDay, temp, d1:d31, na.rm = TRUE) %>%
   
@@ -64,7 +66,7 @@ View(weather6)
 
 # Remove rows where temp == NA
 weather7 <- drop_na(weather6, temp)
-weather7
+View(weather7)
 
 # fill in NA's in temp with the most recent non-NA value:
 weather8 <- fill(weather6, temp)
@@ -91,11 +93,13 @@ View(gill)
 length(unique(gill$date)) # 2
 length(unique(gill$commonName)) # 9
 # so, a table with all combinations of date & commonName should have 18 rows
-nrow(gill) # 12 ... so, gill has missing zeros
+nrow(gill) # 12 ... so, gill has missing zeros ("implicit zeros")
 
+
+# complete() finds all unique combinations of variables x, y, ..., including combinations not already in the dataset
 gill2 <- gill %>%
   select(date, commonName, cue, cueWt) %>%
-  complete(date, commonName, fill = list(cue = 0, cueWt = 0))
+  complete(date, commonName, fill = list(cue = 0, cueWt = 0)) 
 View(gill2)
 
 
@@ -108,9 +112,9 @@ gill3 <- gill %>%
   complete(date, sample, commonName, fill = list(cue = 0, cueWt = 0))
 View(gill3)
 
-# This does not yield what we want! It creates non-existent sammples (e.g. Sample 5 on 6/18/74)
+# This does not produce what we want! It creates non-existent sammples (e.g. Sample 5 on 6/18/74)
 # Instead, we need to bookend complete() with unite() and separate() to get the intended outcome:
-# Use complete() for all combations of (date, sample) & commonName:
+# Use complete() to get all combations of each sampling event (date, sample) + commonName:
 gill4 <- gill %>%
   select(date, sample, commonName, cue, cueWt) %>%
   unite(dateSample, date, sample, sep = ",") %>% # need all combinations of each sampling event & species, ie [date, sample] & commonName; n = 45
@@ -162,14 +166,14 @@ gill5 <- gill4 %>%
   #select(ends_with("e"))
   #select(contains("t"))
   
-  #rename(catch = cueWt, year = yr)
+  #rename(catch = cueWt, year = yr, julian = julien)
   select(year = yr, month, julian = julien, sample, commonName, cueWt) %>% # you can combine select() and rename()
 
   # 5. Condense multiple values into a single value: group_by() %>% summarize() %>% ungroup()
   group_by(year, commonName) %>%
   summarize(meanCueWt = mean(cueWt),
             maxCueWt = max(cueWt)) %>%
-  ungroup() %>% # always do an ungroup() after summarize(), otherwise you'll get funky results from remaining manipulations
+  ungroup() %>% # always ungroup() when you're done! otherwise you'll get funky results from remaining manipulations/dataframes
   
   # 6. Take random samples of rows: sample_n(), sample_frac()
   group_by(year) %>% 
