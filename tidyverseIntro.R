@@ -22,13 +22,13 @@ weather <- as_tibble(read.csv("./data/weather.csv", stringsAsFactors = FALSE))
 weather
 
 
-weather2 <- gather(weather, key = day, value = temp, d1:d31, na.rm = TRUE) # gather the 31 day columns into a new variable called "day"
+weather2 <- gather(weather, key = weirdDay, value = temp, d1:d31, na.rm = TRUE) # gather the 31 day columns into a new variable called "day"
 weather2
 
 
 weather3 <- weather2 %>% # start with weather2
-  mutate(day = parse_number(day)) %>% # dplyr::mutate() creates a new variable called day (and here it replaces the old "day" variable) using the calculation specified on the right side of "="
-  select(id, year, month, day, element, temp) %>% # the intended purpose of select() is to retain only those variables you want to keep, but here it's used to set the order of columns
+  mutate(day = parse_number(weirdDay)) %>% # dplyr::mutate() creates a new variable called day using the calculation specified on the right side of "="
+  select(id, year, month, day, element, temp) %>% # the intended purpose of select() is to retain only those variables you want to keep, but it can also be used to set the order of columns
   arrange(id, year, month, day) # re-order rows
 weather3
 
@@ -45,9 +45,9 @@ weather4
 
 # Note these steps can all go into a single pipe:
 weather5 <- weather %>%
-  gather(day, temp, d1:d31, na.rm = TRUE) %>%
+  gather(weirdDay, temp, d1:d31, na.rm = TRUE) %>%
   
-  mutate(day = parse_number(day)) %>%
+  mutate(day = parse_number(weirdDay)) %>%
   select(id, year, month, day, element, temp) %>%
   arrange(id, year, month, day) %>%
   
@@ -59,7 +59,7 @@ weather5
 
 # 2. Dealing with missing values: drop_na(), fill(), replace_na()
 
-weather6 <- gather(weather, key = day, value = temp, d1:d31) 
+weather6 <- gather(weather, key = weirdDay, value = temp, d1:d31) 
 View(weather6)
 
 # Remove rows where temp == NA
