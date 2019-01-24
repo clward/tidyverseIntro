@@ -18,8 +18,7 @@ library(tidyverse); library(lubridate)
 
 # 1. gather(), spread()
 # example is from cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html
-weather <- as_tibble(read.csv("C:/Users/WARDCO/Documents/tidyverseIntro/weather.csv", stringsAsFactors = FALSE))
-weather <- as_tibble(read.csv("/Users/Colette/Downloads/tidyverseIntro/weather.csv", stringsAsFactors = FALSE))
+weather <- as_tibble(read.csv("./data/weather.csv", stringsAsFactors = FALSE))
 weather
 
 
@@ -83,7 +82,7 @@ View(weather9)
 
 # We'll do an example with the missing zero problem
 
-gill <- as_tibble(read.csv("/Users/Colette/Downloads/tidyverseIntro/gillnet.csv", stringsAsFactors = FALSE))
+gill <- as_tibble(read.csv("./data/gillnet.csv", stringsAsFactors = FALSE))
 View(gill)
 
 
